@@ -7,33 +7,42 @@ import (
 	"time"
 )
 
+type Symbol string
+
+const (
+	red    Symbol = "🔴"
+	green         = "🟢"
+	purple        = "🟣"
+)
+
 func Run(config Config) {
+	state := initState()
+
 	rows := config.deskRows
 	columns := config.deskColumns
 	frameSpeed := float64(config.deskFrameSpeed)
 
 	// Создаём двумерный слайс
-	playground := make([][]string, rows)
+	playground := make([][]Symbol, rows)
+	// TODO: доделать
+	plRow := []Symbol{green, green, green, green, green, green, green, green}
 	for i := range playground {
-		playground[i] = make([]string, columns)
+		row := make([]Symbol, columns)
+		copy(row, plRow)
+		playground[i] = row
 	}
-	appleSymbol := "🔴"
-	spaceSymbol := "🟢"
-	snakeSymbol := "🟣"
-	snakeHeadSymbol := "🟣"
-	appleCord := make([]int, 2)
+
+	appleCoord := make([]int, 2)
 	snakeDirectionHorizontal := 1
 	snakeDirectionVertical := 0
-	gameOver := false
-	snakeLength := 2
 	score := 0
 	appleScoreAdd := 100
-	// Заполняем двумерный слайс, сначала пробелы
-	for i := 0; i < rows; i++ {
-		for j := 0; j < columns; j++ {
-			playground[i][j] = spaceSymbol
-		}
-	}
+	//// Заполняем двумерный слайс, сначала пробелы
+	//for i := 0; i < rows; i++ {
+	//	for j := 0; j < columns; j++ {
+	//		playground[i][j] = state.space
+	//	}
+	//}
 	snakeCord := make([][]int, 3) // Двумерный слайс змейки, каждый слайс содержит вертикальную и горизонтальную координату
 	for i := range snakeCord {
 		snakeCord[i] = make([]int, 2)
@@ -46,29 +55,29 @@ func Run(config Config) {
 	// Задаём координаты голове змеи и яблока
 	snakeCord[0][0] = columns / 2
 	snakeCord[0][1] = rows / 2
-	appleCord[0] = rand.Intn(rows-1) + 0
-	appleCord[1] = rand.Intn(columns-1) + 0
+	appleCoord[0] = rand.Intn(rows-1) + 0
+	appleCoord[1] = rand.Intn(columns-1) + 0
 	// Если координаты головы змеи совпадают с яблоком, то перемещаем яблоко
-	for appleCord[0] == snakeCord[0][0] && appleCord[1] == snakeCord[0][1] {
-		appleCord[0] = rand.Intn(rows-1) + 0
-		appleCord[1] = rand.Intn(columns-1) + 0
+	for appleCoord[0] == snakeCord[0][0] && appleCoord[1] == snakeCord[0][1] {
+		appleCoord[0] = rand.Intn(rows-1) + 0
+		appleCoord[1] = rand.Intn(columns-1) + 0
 	}
-	playground[snakeCord[0][1]][snakeCord[0][0]] = snakeHeadSymbol
-	playground[snakeCord[1][1]][snakeCord[1][0]] = snakeSymbol
-	playground[snakeCord[2][1]][snakeCord[2][0]] = snakeSymbol
-	playground[appleCord[0]][appleCord[1]] = appleSymbol
+	playground[snakeCord[0][1]][snakeCord[0][0]] = state.snake.headSymbol
+	playground[snakeCord[1][1]][snakeCord[1][0]] = state.snake.symbol
+	playground[snakeCord[2][1]][snakeCord[2][0]] = state.snake.symbol
+	playground[appleCoord[0]][appleCoord[1]] = state.apple
 	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical)
 	for { // for {} == while True. Постоянный цикл
 		// Координаты каждой клетки змейки кроме первой приравниваем к предыдущей
 		// Первую клетку двигаем вперёд
 		// Отрисовываем каждую клетку
-		for i := 0; i < snakeLength; i++ {
-			snakeCord[snakeLength-i][0], snakeCord[snakeLength-i][1] = snakeCord[snakeLength-i-1][0], snakeCord[snakeLength-i-1][1]
-			playground[snakeCord[snakeLength-i][1]][snakeCord[snakeLength-i][0]] = snakeSymbol
+		for i := 0; i < state.snake.length; i++ {
+			snakeCord[state.snake.length-i][0], snakeCord[state.snake.length-i][1] = snakeCord[state.snake.length-i-1][0], snakeCord[state.snake.length-i-1][1]
+			playground[snakeCord[state.snake.length-i][1]][snakeCord[state.snake.length-i][0]] = state.snake.symbol
 		}
 		// Проверочка, чтобы в частных случаях иконка яблока не пропадала
-		if playground[snakeCord[snakeLength][1]][snakeCord[snakeLength][0]] != appleSymbol {
-			playground[snakeCord[snakeLength][1]][snakeCord[snakeLength][0]] = spaceSymbol
+		if playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] != state.apple {
+			playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] = state.space
 		}
 		// Смотрим, выходит ли змейка за рамки
 		if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == rows || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == columns {
@@ -87,41 +96,54 @@ func Run(config Config) {
 				}
 			}
 		}
-		if !gameOver {
+		if !state.isGameOver {
 			snakeCord[0][1], snakeCord[0][0] = snakeCord[0][1]+snakeDirectionVertical, snakeCord[0][0]+snakeDirectionHorizontal
 		}
 		// Смотрим, врезается ли змейка или нет
-		if playground[snakeCord[0][1]][snakeCord[0][0]] == snakeSymbol {
-			gameOver = true
+		if playground[snakeCord[0][1]][snakeCord[0][0]] == state.snake.symbol {
+			state.isGameOver = true
 		}
-		playground[snakeCord[0][1]][snakeCord[0][0]] = snakeHeadSymbol
+		playground[snakeCord[0][1]][snakeCord[0][0]] = state.snake.headSymbol
 		// Захавал яблоко. Делаем новое
-		if snakeCord[0][1] == appleCord[0] && snakeCord[0][0] == appleCord[1] {
-			snakeLength = snakeLength + 1
+		if snakeCord[0][1] == appleCoord[0] && snakeCord[0][0] == appleCoord[1] {
+			state.snake.length = state.snake.length + 1
 			score = score + appleScoreAdd
-			snakeCordAdd := []int{snakeCord[snakeLength-1][1] - snakeDirectionVertical, snakeCord[snakeLength-1][0] - snakeDirectionHorizontal}
+			snakeCordAdd := []int{snakeCord[state.snake.length-1][1] - snakeDirectionVertical, snakeCord[state.snake.length-1][0] - snakeDirectionHorizontal}
 			snakeCord = append(snakeCord, snakeCordAdd)
-			appleCord[0] = rand.Intn(rows-1) + 0
-			appleCord[1] = rand.Intn(columns-1) + 0
-			for i := 0; i < snakeLength; i++ {
-				for appleCord[1] == snakeCord[i][0] && appleCord[0] == snakeCord[i][1] {
+			appleCoord[0] = rand.Intn(rows-1) + 0
+			appleCoord[1] = rand.Intn(columns-1) + 0
+			for i := 0; i < state.snake.length; i++ {
+				for appleCoord[1] == snakeCord[i][0] && appleCoord[0] == snakeCord[i][1] {
 					// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
-					appleCord[0] = rand.Intn(rows-1) + 0
-					appleCord[1] = rand.Intn(columns-1) + 0
+					appleCoord[0] = rand.Intn(rows-1) + 0
+					appleCoord[1] = rand.Intn(columns-1) + 0
 				}
 			}
-			playground[appleCord[0]][appleCord[1]] = appleSymbol
+			playground[appleCoord[0]][appleCoord[1]] = state.apple
 		}
-		if gameOver {
+		if state.isGameOver {
 			for k := 0; k < rows+1; k++ {
 				fmt.Printf("\033[1A\033[K")
 			}
 			fmt.Println("Game Over")
 			break
 		} else {
-			fmt.Println(appleCord[1], appleCord[0])
+			fmt.Println(appleCoord[1], appleCoord[0])
 			render(&rows, &columns, &score, &frameSpeed, &playground)
 		}
+	}
+}
+
+func initState() State {
+	return State{
+		isGameOver: false,
+		apple:      red,
+		space:      green,
+		snake: Snake{
+			length:     2,
+			symbol:     purple,
+			headSymbol: purple,
+		},
 	}
 }
 
@@ -153,7 +175,7 @@ func readKey(horizAddress *int, vertAddress *int) { // Чтение инпута
 	}
 }
 
-func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]string) {
+func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]Symbol) {
 	for k := 0; k < *deskLinkVert; k++ { // Вывод матрицы в терминал
 		for l := 0; l < *deskLinkHoriz; l++ {
 			fmt.Print((*playgroundLink)[k][l])
