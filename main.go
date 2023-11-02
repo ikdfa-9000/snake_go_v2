@@ -1,44 +1,51 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
-	"strconv"
 	"time"
 
 	tb "github.com/nsf/termbox-go"
 )
 
 func main() {
-	input, err := os.Open("config.txt") // Открытие файла
+	//input, err := os.Open("config.txt") // Открытие файла
+	//if err != nil {
+	//	println(err)
+	//	log.Fatal("Файла нет")
+	//}
+	//defer input.Close()
+	//configFile := bufio.NewScanner(input) // Инициализация сканера.
+	//configFile.Scan()
+	//rows, err := strconv.Atoi(configFile.Text())
+	//if err != nil {
+	//	log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
+	//}
+	//configFile.Scan()
+	//columns, err := strconv.Atoi(configFile.Text())
+	//if err != nil {
+	//	log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
+	//}
+	//configFile.Scan()
+	//frameSpeed, errSpeed := strconv.ParseFloat(configFile.Text(), 32)
+	//if errSpeed != nil {
+	//	log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
+	//}
+
+	config, err := InitConfig()
 	if err != nil {
-		println(err)
-		log.Fatal("Файла нет")
+		log.Fatal("ошибка чтение конфига: " + err.Error())
 	}
-	defer input.Close()
-	configFile := bufio.NewScanner(input) // Инициализация сканера.
-	configFile.Scan()
-	deskSizeVert, err := strconv.Atoi(configFile.Text())
-	if err != nil {
-		log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
-	}
-	configFile.Scan()
-	deskSizeHoriz, err := strconv.Atoi(configFile.Text())
-	if err != nil {
-		log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
-	}
-	configFile.Scan()
-	frameSpeed, errSpeed := strconv.ParseFloat(configFile.Text(), 32)
-	if errSpeed != nil {
-		log.Fatal("Хопа! А я не могу прочитать, что написано в конфиг файле")
-	}
+
+	rows := config.deskRows
+	columns := config.deskColumns
+	frameSpeed := float64(config.deskFrameSpeed)
+
 	// Создаём двумерный слайс
-	playground := make([][]string, deskSizeVert)
+	playground := make([][]string, rows)
 	for i := range playground {
-		playground[i] = make([]string, deskSizeHoriz)
+		playground[i] = make([]string, columns)
 	}
 	appleSymbol := "🔴 "
 	spaceSymbol := "🟢"
@@ -52,8 +59,8 @@ func main() {
 	score := 0
 	appleScoreAdd := 100
 	// Заполняем двумерный слайс, сначала пробелы
-	for i := 0; i < deskSizeVert; i++ {
-		for j := 0; j < deskSizeHoriz; j++ {
+	for i := 0; i < rows; i++ {
+		for j := 0; j < columns; j++ {
 			playground[i][j] = spaceSymbol
 		}
 	}
@@ -67,14 +74,14 @@ func main() {
 	}
 	defer tb.Close()
 	// Задаём координаты голове змеи и яблока
-	snakeCord[0][0] = deskSizeHoriz / 2
-	snakeCord[0][1] = deskSizeVert / 2
-	appleCord[0] = rand.Intn(deskSizeVert-1) + 0
-	appleCord[1] = rand.Intn(deskSizeHoriz-1) + 0
+	snakeCord[0][0] = columns / 2
+	snakeCord[0][1] = rows / 2
+	appleCord[0] = rand.Intn(rows-1) + 0
+	appleCord[1] = rand.Intn(columns-1) + 0
 	// Если координаты головы змеи совпадают с яблоком, то перемещаем яблоко
 	for appleCord[0] == snakeCord[0][0] && appleCord[1] == snakeCord[0][1] {
-		appleCord[0] = rand.Intn(deskSizeVert-1) + 0
-		appleCord[1] = rand.Intn(deskSizeHoriz-1) + 0
+		appleCord[0] = rand.Intn(rows-1) + 0
+		appleCord[1] = rand.Intn(columns-1) + 0
 	}
 	playground[snakeCord[0][1]][snakeCord[0][0]] = snakeHeadSymbol
 	playground[snakeCord[1][1]][snakeCord[1][0]] = snakeSymbol
@@ -94,19 +101,19 @@ func main() {
 			playground[snakeCord[snakeLength][1]][snakeCord[snakeLength][0]] = spaceSymbol
 		}
 		// Смотрим, выходит ли змейка за рамки
-		if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == deskSizeVert || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == deskSizeHoriz {
+		if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == rows || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == columns {
 			// gameOver = true
 			switch snakeDirectionVertical {
 			case 1:
 				snakeCord[0][1] = -1
 			case -1:
-				snakeCord[0][1] = deskSizeVert
+				snakeCord[0][1] = rows
 			default:
 				switch snakeDirectionHorizontal { // Такого уродства нет даже в погребе у Сатаны
 				case 1:
 					snakeCord[0][0] = -1
 				case -1:
-					snakeCord[0][0] = deskSizeHoriz
+					snakeCord[0][0] = columns
 				}
 			}
 		}
@@ -124,26 +131,26 @@ func main() {
 			score = score + appleScoreAdd
 			snakeCordAdd := []int{snakeCord[snakeLength-1][1] - snakeDirectionVertical, snakeCord[snakeLength-1][0] - snakeDirectionHorizontal}
 			snakeCord = append(snakeCord, snakeCordAdd)
-			appleCord[0] = rand.Intn(deskSizeVert-1) + 0
-			appleCord[1] = rand.Intn(deskSizeHoriz-1) + 0
+			appleCord[0] = rand.Intn(rows-1) + 0
+			appleCord[1] = rand.Intn(columns-1) + 0
 			for i := 0; i < snakeLength; i++ {
 				for appleCord[1] == snakeCord[i][0] && appleCord[0] == snakeCord[i][1] {
 					// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
-					appleCord[0] = rand.Intn(deskSizeVert-1) + 0
-					appleCord[1] = rand.Intn(deskSizeHoriz-1) + 0
+					appleCord[0] = rand.Intn(rows-1) + 0
+					appleCord[1] = rand.Intn(columns-1) + 0
 				}
 			}
 			playground[appleCord[0]][appleCord[1]] = appleSymbol
 		}
 		if gameOver {
-			for k := 0; k < deskSizeVert+1; k++ {
+			for k := 0; k < rows+1; k++ {
 				fmt.Printf("\033[1A\033[K")
 			}
 			fmt.Println("Game Over")
 			break
 		} else {
 			fmt.Println(appleCord[1], appleCord[0])
-			render(&deskSizeVert, &deskSizeHoriz, &score, &frameSpeed, &playground)
+			render(&rows, &columns, &score, &frameSpeed, &playground)
 		}
 	}
 }
