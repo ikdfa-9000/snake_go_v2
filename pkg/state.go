@@ -7,6 +7,10 @@ type State struct {
 	snake      Snake
 }
 
+func (s *State) gameOver() {
+	s.isGameOver = true
+}
+
 type Snake struct {
 	length     int
 	symbol     Symbol
