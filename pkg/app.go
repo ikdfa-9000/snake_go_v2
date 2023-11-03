@@ -2,9 +2,10 @@ package pkg
 
 import (
 	"fmt"
-	tb "github.com/nsf/termbox-go"
 	"math/rand"
 	"time"
+
+	tb "github.com/nsf/termbox-go"
 )
 
 type Symbol string
@@ -68,77 +69,91 @@ func Run(config Config) {
 	playground[appleCoord[0]][appleCoord[1]] = state.apple
 	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical, &state)
 	for { // for {} == while True. Постоянный цикл
-		// Координаты каждой клетки змейки кроме первой приравниваем к предыдущей
-		// Первую клетку двигаем вперёд
-		// Отрисовываем каждую клетку
-		for i := 0; i < state.snake.length; i++ {
-			snakeCord[state.snake.length-i][0], snakeCord[state.snake.length-i][1] = snakeCord[state.snake.length-i-1][0], snakeCord[state.snake.length-i-1][1]
-			playground[snakeCord[state.snake.length-i][1]][snakeCord[state.snake.length-i][0]] = state.snake.symbol
-		}
-		// Проверочка, чтобы в частных случаях иконка яблока не пропадала
-		if playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] != state.apple {
-			playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] = state.space
-		}
-		// Смотрим, выходит ли змейка за рамки
-		if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == rows || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == columns {
-			// gameOver = true
-			switch snakeDirectionVertical {
-			case 1:
-				snakeCord[0][1] = -1
-			case -1:
-				snakeCord[0][1] = rows
-			default:
-				switch snakeDirectionHorizontal { // Такого уродства нет даже в погребе у Сатаны
-				case 1:
-					snakeCord[0][0] = -1
-				case -1:
-					snakeCord[0][0] = columns
-				}
-			}
-		}
-		if !state.isGameOver {
-			snakeCord[0][1], snakeCord[0][0] = snakeCord[0][1]+snakeDirectionVertical, snakeCord[0][0]+snakeDirectionHorizontal
-		}
-		// Смотрим, врезается ли змейка или нет
-		if playground[snakeCord[0][1]][snakeCord[0][0]] == state.snake.symbol {
-			state.isGameOver = true
-		}
-		playground[snakeCord[0][1]][snakeCord[0][0]] = state.snake.headSymbol
-		// Захавал яблоко. Делаем новое
-		if snakeCord[0][1] == appleCoord[0] && snakeCord[0][0] == appleCoord[1] {
-			state.snake.length = state.snake.length + 1
-			score = score + appleScoreAdd
-			snakeCordAdd := []int{snakeCord[state.snake.length-1][1] - snakeDirectionVertical, snakeCord[state.snake.length-1][0] - snakeDirectionHorizontal}
-			snakeCord = append(snakeCord, snakeCordAdd)
-			appleCoord[0] = rand.Intn(rows-1) + 0
-			appleCoord[1] = rand.Intn(columns-1) + 0
-			for i := 0; i < state.snake.length; i++ {
-				for appleCoord[1] == snakeCord[i][0] && appleCoord[0] == snakeCord[i][1] {
-					// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
-					appleCoord[0] = rand.Intn(rows-1) + 0
-					appleCoord[1] = rand.Intn(columns-1) + 0
-				}
-			}
-			playground[appleCoord[0]][appleCoord[1]] = state.apple
-		}
-		if state.isGameOver {
-			for k := 0; k < rows+1; k++ {
-				fmt.Printf("\033[1A\033[K")
-			}
-			fmt.Println("Game Over")
-			break
-		} else {
+		if state.isGamePaused {
 			fmt.Println(appleCoord[1], appleCoord[0])
 			render(&rows, &columns, &score, &frameSpeed, &playground)
+			if state.isGameOver {
+				for k := 0; k < rows+1; k++ {
+					fmt.Printf("\033[1A\033[K")
+				}
+				fmt.Println("Game Over")
+				break
+			}
+		} else {
+			// Координаты каждой клетки змейки кроме первой приравниваем к предыдущей
+			// Первую клетку двигаем вперёд
+			// Отрисовываем каждую клетку
+			for i := 0; i < state.snake.length; i++ {
+				snakeCord[state.snake.length-i][0], snakeCord[state.snake.length-i][1] = snakeCord[state.snake.length-i-1][0], snakeCord[state.snake.length-i-1][1]
+				playground[snakeCord[state.snake.length-i][1]][snakeCord[state.snake.length-i][0]] = state.snake.symbol
+			}
+			// Проверочка, чтобы в частных случаях иконка яблока не пропадала
+			if playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] != state.apple {
+				playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] = state.space
+			}
+			// Смотрим, выходит ли змейка за рамки
+			if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == rows || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == columns {
+				// gameOver = true
+				switch snakeDirectionVertical {
+				case 1:
+					snakeCord[0][1] = -1
+				case -1:
+					snakeCord[0][1] = rows
+				default:
+					switch snakeDirectionHorizontal { // Такого уродства нет даже в погребе у Сатаны
+					case 1:
+						snakeCord[0][0] = -1
+					case -1:
+						snakeCord[0][0] = columns
+					}
+				}
+			}
+			if !state.isGameOver {
+				snakeCord[0][1], snakeCord[0][0] = snakeCord[0][1]+snakeDirectionVertical, snakeCord[0][0]+snakeDirectionHorizontal
+			}
+			// Смотрим, врезается ли змейка или нет
+			if playground[snakeCord[0][1]][snakeCord[0][0]] == state.snake.symbol {
+				state.isGameOver = true
+			}
+			playground[snakeCord[0][1]][snakeCord[0][0]] = state.snake.headSymbol
+			// Захавал яблоко. Делаем новое
+			if snakeCord[0][1] == appleCoord[0] && snakeCord[0][0] == appleCoord[1] {
+				state.snake.length = state.snake.length + 1
+				score = score + appleScoreAdd
+				snakeCordAdd := []int{snakeCord[state.snake.length-1][1] - snakeDirectionVertical, snakeCord[state.snake.length-1][0] - snakeDirectionHorizontal}
+				snakeCord = append(snakeCord, snakeCordAdd)
+				appleCoord[0] = rand.Intn(rows-1) + 0
+				appleCoord[1] = rand.Intn(columns-1) + 0
+				for i := 0; i < state.snake.length; i++ {
+					for appleCoord[1] == snakeCord[i][0] && appleCoord[0] == snakeCord[i][1] {
+						// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
+						// TODO: Исправить баг, спавнящий яблоко на змейке
+						appleCoord[0] = rand.Intn(rows-1) + 0
+						appleCoord[1] = rand.Intn(columns-1) + 0
+					}
+				}
+				playground[appleCoord[0]][appleCoord[1]] = state.apple
+			}
+			if state.isGameOver {
+				for k := 0; k < rows+1; k++ {
+					fmt.Printf("\033[1A\033[K")
+				}
+				fmt.Println("Game Over")
+				break
+			} else {
+				fmt.Println(appleCoord[1], appleCoord[0])
+				render(&rows, &columns, &score, &frameSpeed, &playground)
+			}
 		}
 	}
 }
 
 func initState() State {
 	return State{
-		isGameOver: false,
-		apple:      red,
-		space:      green,
+		isGameOver:   false,
+		isGamePaused: false,
+		apple:        red,
+		space:        green,
 		snake: Snake{
 			length:     2,
 			symbol:     purple,
@@ -152,29 +167,41 @@ func initState() State {
 func readKey(horizAddress *int, vertAddress *int, state *State) { // Чтение инпута с клавиатуры. Ненавижу
 	for {
 		event := tb.PollEvent()
-		switch {
-		case event.Key == tb.KeyCtrlC || event.Key == tb.KeyEsc:
-			state.gameOver()
+		// Во время паузы игрок не должен иметь возможность менять направление змейки
+		if state.isGamePaused {
+			switch {
+			case event.Ch == 'p':
+				state.togglePause()
+			case event.Key == tb.KeyCtrlC || event.Key == tb.KeyEsc:
+				state.gameOver()
+			}
+		} else {
+			switch {
+			case event.Ch == 'p':
+				state.togglePause()
+			case event.Key == tb.KeyCtrlC || event.Key == tb.KeyEsc:
+				state.gameOver()
 
-		case event.Ch == 'a' || event.Key == tb.KeyArrowLeft:
-			if *horizAddress == 0 {
-				*horizAddress = -1
-				*vertAddress = 0
-			}
-		case event.Ch == 's' || event.Key == tb.KeyArrowDown:
-			if *vertAddress == 0 {
-				*horizAddress = 0
-				*vertAddress = 1
-			}
-		case event.Ch == 'd' || event.Key == tb.KeyArrowRight:
-			if *horizAddress == 0 {
-				*horizAddress = 1
-				*vertAddress = 0
-			}
-		case event.Ch == 'w' || event.Key == tb.KeyArrowUp:
-			if *vertAddress == 0 {
-				*horizAddress = 0
-				*vertAddress = -1
+			case event.Ch == 'a' || event.Key == tb.KeyArrowLeft:
+				if *horizAddress == 0 {
+					*horizAddress = -1
+					*vertAddress = 0
+				}
+			case event.Ch == 's' || event.Key == tb.KeyArrowDown:
+				if *vertAddress == 0 {
+					*horizAddress = 0
+					*vertAddress = 1
+				}
+			case event.Ch == 'd' || event.Key == tb.KeyArrowRight:
+				if *horizAddress == 0 {
+					*horizAddress = 1
+					*vertAddress = 0
+				}
+			case event.Ch == 'w' || event.Key == tb.KeyArrowUp:
+				if *vertAddress == 0 {
+					*horizAddress = 0
+					*vertAddress = -1
+				}
 			}
 		}
 	}
