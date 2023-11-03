@@ -66,7 +66,7 @@ func Run(config Config) {
 	playground[snakeCord[1][1]][snakeCord[1][0]] = state.snake.symbol
 	playground[snakeCord[2][1]][snakeCord[2][0]] = state.snake.symbol
 	playground[appleCoord[0]][appleCoord[1]] = state.apple
-	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical)
+	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical, &state)
 	for { // for {} == while True. Постоянный цикл
 		// Координаты каждой клетки змейки кроме первой приравниваем к предыдущей
 		// Первую клетку двигаем вперёд
@@ -147,26 +147,31 @@ func initState() State {
 	}
 }
 
-func readKey(horizAddress *int, vertAddress *int) { // Чтение инпута с клавиатуры. Ненавижу
+// Считывает нажатия с клавиатуры и изменяет направление змейки.
+// Завершает игру, если пользователь хочет выйти
+func readKey(horizAddress *int, vertAddress *int, state *State) { // Чтение инпута с клавиатуры. Ненавижу
 	for {
 		event := tb.PollEvent()
 		switch {
-		case event.Ch == 'a':
+		case event.Key == tb.KeyCtrlC || event.Key == tb.KeyEsc:
+			state.gameOver()
+
+		case event.Ch == 'a' || event.Key == tb.KeyArrowLeft:
 			if *horizAddress == 0 {
 				*horizAddress = -1
 				*vertAddress = 0
 			}
-		case event.Ch == 's':
+		case event.Ch == 's' || event.Key == tb.KeyArrowDown:
 			if *vertAddress == 0 {
 				*horizAddress = 0
 				*vertAddress = 1
 			}
-		case event.Ch == 'd':
+		case event.Ch == 'd' || event.Key == tb.KeyArrowRight:
 			if *horizAddress == 0 {
 				*horizAddress = 1
 				*vertAddress = 0
 			}
-		case event.Ch == 'w':
+		case event.Ch == 'w' || event.Key == tb.KeyArrowUp:
 			if *vertAddress == 0 {
 				*horizAddress = 0
 				*vertAddress = -1
