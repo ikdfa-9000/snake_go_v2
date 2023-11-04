@@ -66,8 +66,3 @@ type Snake struct {
 	symbol     Symbol
 	headSymbol Symbol
 }
-
-type AppleCoord struct {
-	x int
-	y int
-}
