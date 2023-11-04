@@ -2,10 +2,8 @@ package pkg
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
-
 	tb "github.com/nsf/termbox-go"
+	"math/rand"
 )
 
 type Symbol string
@@ -65,12 +63,12 @@ func Run(config Config) {
 	playground[appleCoord[0]][appleCoord[1]] = state.apple
 	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical, &state)
 	for { // for {} == while True. Постоянный цикл
-		if state.isGamePaused {
+		if state.status == gamePauseStatus {
 			fmt.Println(appleCoord[1], appleCoord[0])
 			render(&rows, &columns, &score, &frameSpeed, &playground)
-			if state.isGameOver {
+			if state.status == gameOverStatus {
 				for k := 0; k < rows+1; k++ {
-					fmt.Printf("\033[1A\033[K")
+					clearRender()
 				}
 				fmt.Println("Game Over")
 				break
@@ -104,12 +102,12 @@ func Run(config Config) {
 					}
 				}
 			}
-			if !state.isGameOver {
+			if state.status == gameActiveStatus {
 				snakeCord[0][1], snakeCord[0][0] = snakeCord[0][1]+snakeDirectionVertical, snakeCord[0][0]+snakeDirectionHorizontal
 			}
 			// Смотрим, врезается ли змейка или нет
 			if playground[snakeCord[0][1]][snakeCord[0][0]] == state.snake.symbol {
-				state.isGameOver = true
+				state.gameOver()
 			}
 			playground[snakeCord[0][1]][snakeCord[0][0]] = state.snake.headSymbol
 			// Захавал яблоко. Делаем новое
@@ -130,9 +128,9 @@ func Run(config Config) {
 				}
 				playground[appleCoord[0]][appleCoord[1]] = state.apple
 			}
-			if state.isGameOver {
+			if state.status == gameOverStatus {
 				for k := 0; k < rows+1; k++ {
-					fmt.Printf("\033[1A\033[K")
+					clearRender()
 				}
 				fmt.Println("Game Over")
 				break
@@ -146,10 +144,7 @@ func Run(config Config) {
 
 func initState() State {
 	return State{
-		isGameNeeded: true,
-		isMenuActive: false,
-		isGameOver:   false,
-		isGamePaused: false,
+		status:       gameActiveStatus, // TODO: temp
 		apple:        red,
 		space:        green,
 		menuStrings:  []string{" Играть", " Опции", " Выход"},
@@ -167,37 +162,44 @@ func initState() State {
 func readKey(horizAddress *int, vertAddress *int, state *State) {
 	// Не знаю, насколько целесообразно использовать сразу для трёх (а с Options для целых четырех) стейтов лишь одну
 	// функцию для чтения инпута с клавиатуры.
+
 	for {
 		event := tb.PollEvent()
-		if state.isMenuActive {
-			switch {
-			case event.Key == tb.KeyArrowUp:
-				if state.menuStringID == 1 {
-					state.menuStringID = 3
-				}
-			case event.Key == tb.KeyArrowDown:
-				if state.menuStringID == 3 {
-					state.menuStringID = 1
-				}
-			case event.Key == tb.KeyEnter:
-				// Цикл for почему-то помечает дальнейший код как недостижимый... хз
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Printf("\033[1A\033[K")
-				state.menuInitialize()
-			}
-		} else if state.isGamePaused { // Во время паузы игрок не должен иметь возможность менять направление змейки
+
+		switch state.status {
+		case gameExitStatus:
+		case gamePauseStatus:
+			// Во время паузы игрок не должен иметь возможность менять направление змейки
 			switch {
 			case event.Ch == 'p':
 				state.togglePause()
 			case event.Key == tb.KeyCtrlC || event.Key == tb.KeyEsc:
 				state.gameOver()
 			}
-		} else {
+
+		//case gameOverStatus:
+		//case menuActiveStatus:
+		//	switch {
+		//	case event.Key == tb.KeyArrowUp:
+		//		if state.menuStringID == 1 {
+		//			state.menuStringID = 3
+		//		}
+		//	case event.Key == tb.KeyArrowDown:
+		//		if state.menuStringID == 3 {
+		//			state.menuStringID = 1
+		//		}
+		//	case event.Key == tb.KeyEnter:
+		//		// Цикл for почему-то помечает дальнейший код как недостижимый... хз
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		fmt.Printf("\033[1A\033[K")
+		//		state.menuInitialize()
+		//	}
+		case gameActiveStatus:
 			switch {
 			case event.Ch == 'p':
 				state.togglePause()
@@ -227,30 +229,4 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 			}
 		}
 	}
-}
-
-func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]Symbol) {
-	for k := 0; k < *deskLinkVert; k++ { // Вывод матрицы в терминал
-		for l := 0; l < *deskLinkHoriz; l++ {
-			fmt.Print((*playgroundLink)[k][l])
-		}
-		fmt.Println()
-	}
-	fmt.Println("_____________________")
-	fmt.Println("Score: ", *scoreLink)
-	time.Sleep(time.Duration(*speedLink) * time.Millisecond)
-	for k := 0; k < *deskLinkVert+3; k++ {
-		fmt.Printf("\033[1A\033[K")
-	}
-}
-
-func renderMenu(s *State, textPlay string, textOptions string, textExit string, score int) {
-	fmt.Println("Змейка! :D")
-	fmt.Println()
-	fmt.Println(textPlay)
-	fmt.Println(textOptions)
-	fmt.Println(textExit)
-	fmt.Println("-----------------")
-	fmt.Println("Последнее кол-во очков: ", score)
-	// TODO: Вывести рекорд
 }
