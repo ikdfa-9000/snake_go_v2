@@ -19,12 +19,9 @@ const (
 func Run(config Config) {
 	state := initState()
 	state.menuStringID = 1
-	// Не знаю, как в initState() задать значения массива по умолчанию. Потом разберусь :D
-	state.menuStrings[0] = " Играть"
-	state.menuStrings[1] = " Настройки"
-	state.menuStrings[0] = " Играть"
 	// Всю остальную часть кода заключаем в for и проверяем isGameNeeded, isGamePaused, isMenuPaused, isGameOver.
 	// Вот не очень хочется впихивать в for кучу if else, подумаю и чё-нибудь замучу... блинб
+
 	rows := config.deskRows
 	columns := config.deskColumns
 	frameSpeed := float64(config.deskFrameSpeed)
@@ -43,12 +40,6 @@ func Run(config Config) {
 	snakeDirectionVertical := 0
 	score := 0
 	appleScoreAdd := 100
-	//// Заполняем двумерный слайс, сначала пробелы
-	//for i := 0; i < rows; i++ {
-	//	for j := 0; j < columns; j++ {
-	//		playground[i][j] = state.space
-	//	}
-	//}
 	snakeCord := make([][]int, 3) // Двумерный слайс змейки, каждый слайс содержит вертикальную и горизонтальную координату
 	for i := range snakeCord {
 		snakeCord[i] = make([]int, 2)
@@ -161,7 +152,7 @@ func initState() State {
 		isGamePaused: false,
 		apple:        red,
 		space:        green,
-		// menuStrings:  [" Играть", " Опции", " Выход"],
+		menuStrings:  []string{" Играть", " Опции", " Выход"},
 		menuStringID: 1,
 		snake: Snake{
 			length:     2,

@@ -5,11 +5,13 @@ type State struct {
 	isGamePaused bool
 	isMenuActive bool
 	isGameNeeded bool
-	menuStrings  [3]string
+
+	menuStrings  []string
 	menuStringID int
-	apple        Symbol
-	space        Symbol
-	snake        Snake
+
+	apple Symbol
+	space Symbol
+	snake Snake
 }
 
 func (s *State) gameOver() {
