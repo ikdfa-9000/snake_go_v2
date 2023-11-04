@@ -4,6 +4,9 @@ type State struct {
 	isGameOver   bool
 	isGamePaused bool
 	isMenuActive bool
+	isGameNeeded bool
+	menuStrings  [3]string
+	menuStringID int
 	apple        Symbol
 	space        Symbol
 	snake        Snake
@@ -21,6 +24,16 @@ func (s *State) menuSummon() {
 	s.isMenuActive = true
 	if s.isGameOver {
 		println("Ты проиграл!")
+	}
+}
+
+func (s *State) menuInitialize() {
+	switch s.menuStringID {
+	case 1:
+		s.isMenuActive = false
+	case 3:
+		s.isGameNeeded = false
+		// TODO: Меню опций
 	}
 }
 

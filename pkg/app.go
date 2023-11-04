@@ -18,11 +18,16 @@ const (
 
 func Run(config Config) {
 	state := initState()
-
+	state.menuStringID = 1
+	// Не знаю, как в initState() задать значения массива по умолчанию. Потом разберусь :D
+	state.menuStrings[0] = " Играть"
+	state.menuStrings[1] = " Настройки"
+	state.menuStrings[0] = " Играть"
+	// Всю остальную часть кода заключаем в for и проверяем isGameNeeded, isGamePaused, isMenuPaused, isGameOver.
+	// Вот не очень хочется впихивать в for кучу if else, подумаю и чё-нибудь замучу... блинб
 	rows := config.deskRows
 	columns := config.deskColumns
 	frameSpeed := float64(config.deskFrameSpeed)
-
 	// Создаём двумерный слайс
 	playground := make([][]Symbol, rows)
 	// TODO: доделать
@@ -150,10 +155,14 @@ func Run(config Config) {
 
 func initState() State {
 	return State{
+		isGameNeeded: true,
+		isMenuActive: false,
 		isGameOver:   false,
 		isGamePaused: false,
 		apple:        red,
 		space:        green,
+		// menuStrings:  [" Играть", " Опции", " Выход"],
+		menuStringID: 1,
 		snake: Snake{
 			length:     2,
 			symbol:     purple,
@@ -164,11 +173,33 @@ func initState() State {
 
 // Считывает нажатия с клавиатуры и изменяет направление змейки.
 // Завершает игру, если пользователь хочет выйти
-func readKey(horizAddress *int, vertAddress *int, state *State) { // Чтение инпута с клавиатуры. Ненавижу
+func readKey(horizAddress *int, vertAddress *int, state *State) {
+	// Не знаю, насколько целесообразно использовать сразу для трёх (а с Options для целых четырех) стейтов лишь одну
+	// функцию для чтения инпута с клавиатуры.
 	for {
 		event := tb.PollEvent()
-		// Во время паузы игрок не должен иметь возможность менять направление змейки
-		if state.isGamePaused {
+		if state.isMenuActive {
+			switch {
+			case event.Key == tb.KeyArrowUp:
+				if state.menuStringID == 1 {
+					state.menuStringID = 3
+				}
+			case event.Key == tb.KeyArrowDown:
+				if state.menuStringID == 3 {
+					state.menuStringID = 1
+				}
+			case event.Key == tb.KeyEnter:
+				// Цикл for почему-то помечает дальнейший код как недостижимый... хз
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+				state.menuInitialize()
+			}
+		} else if state.isGamePaused { // Во время паузы игрок не должен иметь возможность менять направление змейки
 			switch {
 			case event.Ch == 'p':
 				state.togglePause()
@@ -220,4 +251,15 @@ func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *fl
 	for k := 0; k < *deskLinkVert+3; k++ {
 		fmt.Printf("\033[1A\033[K")
 	}
+}
+
+func renderMenu(s *State, textPlay string, textOptions string, textExit string, score int) {
+	fmt.Println("Змейка! :D")
+	fmt.Println()
+	fmt.Println(textPlay)
+	fmt.Println(textOptions)
+	fmt.Println(textExit)
+	fmt.Println("-----------------")
+	fmt.Println("Последнее кол-во очков: ", score)
+	// TODO: Вывести рекорд
 }
