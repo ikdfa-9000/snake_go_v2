@@ -1,6 +1,7 @@
 package pkg
 
 type StateStatus int
+type MenuStatus int
 
 const (
 	gameExitStatus   StateStatus = -2
@@ -8,14 +9,16 @@ const (
 	menuActiveStatus             = 0
 	gameActiveStatus             = 1
 	gamePauseStatus              = 2
+	menuIdPlay                   = 0
+	menuIdOptions                = 1
+	menuIdExit                   = 2
 )
 
 type State struct {
-	status StateStatus
-
+	status       StateStatus
+	menuStatusId MenuStatus
 	// TODO
-	menuStrings  []string
-	menuStringID int
+	menuStrings []string
 
 	apple Symbol
 	space Symbol
@@ -42,22 +45,21 @@ func (s *State) togglePause() {
 	}
 }
 
+func (s *State) menuInitialize() {
+	switch s.menuStatusId {
+	case menuIdPlay:
+		s.status = gameActiveStatus
+	case menuIdOptions:
+	case menuIdExit:
+		s.status = gameExitStatus
+	}
+}
+
 // TODO
 //func (s *State) menuSummon() {
 //	s.isMenuActive = true
 //	if s.isGameOver {
 //		println("Ты проиграл!")
-//	}
-//}
-
-// TODO
-//func (s *State) menuInitialize() {
-//	switch s.menuStringID {
-//	case 1:
-//		s.isMenuActive = false
-//	case 3:
-//		s.isGameNeeded = false
-//		// TODO: Меню опций
 //	}
 //}
 
