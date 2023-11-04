@@ -2,10 +2,8 @@ package pkg
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
-
 	tb "github.com/nsf/termbox-go"
+	"math/rand"
 )
 
 type Symbol string
@@ -70,7 +68,7 @@ func Run(config Config) {
 			render(&rows, &columns, &score, &frameSpeed, &playground)
 			if state.status == gameOverStatus {
 				for k := 0; k < rows+1; k++ {
-					fmt.Printf("\033[1A\033[K")
+					clearRender()
 				}
 				fmt.Println("Game Over")
 				break
@@ -104,7 +102,6 @@ func Run(config Config) {
 					}
 				}
 			}
-			//if !state.isGameOver {
 			if state.status == gameActiveStatus {
 				snakeCord[0][1], snakeCord[0][0] = snakeCord[0][1]+snakeDirectionVertical, snakeCord[0][0]+snakeDirectionHorizontal
 			}
@@ -131,10 +128,9 @@ func Run(config Config) {
 				}
 				playground[appleCoord[0]][appleCoord[1]] = state.apple
 			}
-			//if state.isGameOver {
 			if state.status == gameOverStatus {
 				for k := 0; k < rows+1; k++ {
-					clear()
+					clearRender()
 				}
 				fmt.Println("Game Over")
 				break
@@ -144,11 +140,6 @@ func Run(config Config) {
 			}
 		}
 	}
-}
-
-// TODO: перенести в другой файл
-func clear() {
-	fmt.Printf("\033[1A\033[K")
 }
 
 func initState() State {
@@ -238,30 +229,4 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 			}
 		}
 	}
-}
-
-func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]Symbol) {
-	for k := 0; k < *deskLinkVert; k++ { // Вывод матрицы в терминал
-		for l := 0; l < *deskLinkHoriz; l++ {
-			fmt.Print((*playgroundLink)[k][l])
-		}
-		fmt.Println()
-	}
-	fmt.Println("_____________________")
-	fmt.Println("Score: ", *scoreLink)
-	time.Sleep(time.Duration(*speedLink) * time.Millisecond)
-	for k := 0; k < *deskLinkVert+3; k++ {
-		fmt.Printf("\033[1A\033[K")
-	}
-}
-
-func renderMenu(s *State, textPlay string, textOptions string, textExit string, score int) {
-	fmt.Println("Змейка! :D")
-	fmt.Println()
-	fmt.Println(textPlay)
-	fmt.Println(textOptions)
-	fmt.Println(textExit)
-	fmt.Println("-----------------")
-	fmt.Println("Последнее кол-во очков: ", score)
-	// TODO: Вывести рекорд
 }
