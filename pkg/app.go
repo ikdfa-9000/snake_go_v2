@@ -39,6 +39,7 @@ func Run(config Config) {
 		case gameActiveStatus, gamePauseStatus:
 			rows := config.deskRows
 			columns := config.deskColumns
+			state.snake.length = 2
 			frameSpeed := float64(config.deskFrameSpeed)
 			// Создаём двумерный слайс
 			playground := make([][]Symbol, rows)
