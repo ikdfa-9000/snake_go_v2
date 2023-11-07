@@ -10,9 +10,10 @@ const (
 	menuActiveStatus             = 0
 	gameActiveStatus             = 1
 	gamePauseStatus              = 2
-	menuIdPlay                   = 0
-	menuIdOptions                = 1
-	menuIdExit                   = 2
+	
+	menuIdPlay    = 0
+	menuIdOptions = 1
+	menuIdExit    = 2
 	// Цвета
 	symbolRed         Symbol = "🔴 "
 	symbolGreen              = "🟢"
