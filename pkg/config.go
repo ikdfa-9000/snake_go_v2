@@ -1,6 +1,8 @@
 package pkg
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	deskRows       int

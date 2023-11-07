@@ -42,7 +42,7 @@ func renderMenu(textPlay string, textOptions string, textExit string, score int)
 	fmt.Println(colorGreen, "Последнее кол-во очков: ", score)
 	fmt.Print(colorReset)
 	// TODO: Вывести рекорд
-	time.Sleep(time.Duration(200) * time.Millisecond)
+	time.Sleep(time.Duration(100) * time.Millisecond)
 	for i := 0; i < 7; i++ {
 		clearRender()
 	}

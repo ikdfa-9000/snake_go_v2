@@ -2,6 +2,7 @@ package pkg
 
 type StateStatus int
 type MenuStatus int
+type Symbol string
 
 const (
 	gameExitStatus   StateStatus = -2
@@ -12,6 +13,17 @@ const (
 	menuIdPlay                   = 0
 	menuIdOptions                = 1
 	menuIdExit                   = 2
+	// Цвета
+	symbolRed         Symbol = "🔴 "
+	symbolGreen              = "🟢"
+	symbolYellow             = "🟡"
+	symbolWhite              = "⚪"
+	symbolBlue               = "🔵"
+	symbolBlack              = "⚫"
+	symbolOrange             = "🟠"
+	symbolPurple             = "🟣"
+	symbolRedCircle          = "⭕"
+	symbolWhiteCircle        = "🔘"
 )
 
 type State struct {
