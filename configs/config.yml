@@ -1,6 +1,0 @@
- desk:
-  rows: "8"
-  columns: 8
-  frameSpeed: 200
-  symbolSnake: "🟣"
-  symbolHead: "🟣"
