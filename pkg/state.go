@@ -1,8 +1,9 @@
 package pkg
 
+import "example.com/snake_go/pkg/themes"
+
 type StateStatus int
 type MenuStatus int
-type Symbol string
 
 const (
 	gameExitStatus   StateStatus = -2
@@ -10,21 +11,12 @@ const (
 	menuActiveStatus             = 0
 	gameActiveStatus             = 1
 	gamePauseStatus              = 2
-	
-	menuIdPlay    = 0
-	menuIdOptions = 1
-	menuIdExit    = 2
-	// Цвета
-	symbolRed         Symbol = "🔴 "
-	symbolGreen              = "🟢"
-	symbolYellow             = "🟡"
-	symbolWhite              = "⚪"
-	symbolBlue               = "🔵"
-	symbolBlack              = "⚫"
-	symbolOrange             = "🟠"
-	symbolPurple             = "🟣"
-	symbolRedCircle          = "⭕"
-	symbolWhiteCircle        = "🔘"
+)
+
+const (
+	menuIdPlay    MenuStatus = 0
+	menuIdOptions            = 1
+	menuIdExit               = 2
 )
 
 type State struct {
@@ -33,8 +25,8 @@ type State struct {
 	// TODO
 	menuStrings []string
 
-	apple Symbol
-	space Symbol
+	apple themes.Symbol
+	space themes.Symbol
 	snake Snake
 }
 
@@ -78,6 +70,6 @@ func (s *State) menuInitialize() {
 
 type Snake struct {
 	length     int
-	symbol     Symbol
-	headSymbol Symbol
+	symbol     themes.Symbol
+	headSymbol themes.Symbol
 }
