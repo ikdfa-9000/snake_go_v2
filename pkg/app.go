@@ -5,10 +5,13 @@ import (
 	"math/rand"
 	"strings"
 
+	"example.com/snake_go/pkg/cfg"
+	"example.com/snake_go/pkg/themes"
+
 	tb "github.com/nsf/termbox-go"
 )
 
-func Run(config Config) {
+func Run(config cfg.Config) {
 	state := initState()
 	snakeDirectionHorizontal := 1
 	snakeDirectionVertical := 0
@@ -27,17 +30,17 @@ func Run(config Config) {
 		case menuActiveStatus, gameOverStatus:
 			renderMenu(state.menuStrings[0], state.menuStrings[1], state.menuStrings[2], score)
 		case gameActiveStatus, gamePauseStatus:
-			rows := config.deskRows
-			columns := config.deskColumns
+			rows := config.DeskRows
+			columns := config.DeskColumns
 			state.snake.length = 2
-			frameSpeed := float64(config.deskFrameSpeed)
+			frameSpeed := float64(config.DeskFrameSpeed)
 			// Создаём двумерный слайс
-			playground := make([][]Symbol, rows)
-			// TODO: доделать
-			plRow := []Symbol{symbolGreen, symbolGreen, symbolGreen, symbolGreen, symbolGreen, symbolGreen, symbolGreen, symbolGreen}
+			playground := make([][]themes.Symbol, rows)
+
+			playgroundRow := GetPlaygroudRow(columns, state.space)
 			for i := range playground {
-				row := make([]Symbol, columns)
-				copy(row, plRow)
+				row := make([]themes.Symbol, columns)
+				copy(row, playgroundRow)
 				playground[i] = row
 			}
 
@@ -153,8 +156,8 @@ func initState() State {
 		menuStatusId: menuIdPlay,
 		menuStrings:  []string{">Играть", " Опции", " Выход"},
 		status:       menuActiveStatus, // TODO: temp
-		apple:        symbolRed,
-		space:        symbolGreen,
+		apple:        themes.SymbolRed,
+		space:        themes.SymbolGreen,
 		snake: Snake{
 			length:     2,
 			symbol:     symbolPurple,
