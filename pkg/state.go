@@ -23,7 +23,7 @@ const (
 	symbolOrange             = "🟠"
 	symbolPurple             = "🟣"
 	symbolRedCircle          = "⭕"
-	symbolWhiteCircle        = "🔘"
+	symbolWhiteCircle        = "🔘 "
 )
 
 type State struct {

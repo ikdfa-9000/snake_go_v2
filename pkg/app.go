@@ -158,7 +158,7 @@ func initState() State {
 		snake: Snake{
 			length:     2,
 			symbol:     symbolPurple,
-			headSymbol: symbolPurple,
+			headSymbol: symbolWhiteCircle,
 		},
 	}
 }
