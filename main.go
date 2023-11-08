@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	config, err := cfg.InitJsonConfig("")
+	config, err := cfg.InitJsonConfig()
 
 	if err != nil {
 		log.Fatal("ошибка чтение конфига: " + err.Error())
