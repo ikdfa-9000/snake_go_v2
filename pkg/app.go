@@ -71,8 +71,8 @@ func Run(config cfg.Config) {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
 						}
-						fmt.Println(colorRed, "Игра окончена")
-						fmt.Print(colorReset)
+						fmt.Println(themes.ColorRed, "Игра окончена")
+						fmt.Print(themes.ColorReset)
 						break
 					}
 				} else {
@@ -134,8 +134,8 @@ func Run(config cfg.Config) {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
 						}
-						fmt.Println(colorRed, "Игра окончена")
-						fmt.Print(colorReset)
+						fmt.Println(themes.ColorRed, "Игра окончена")
+						fmt.Print(themes.ColorReset)
 						state.status = menuActiveStatus
 						break
 					} else {
