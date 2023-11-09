@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"strings"
 
 	"example.com/snake_go/pkg/cfg"
@@ -15,7 +16,7 @@ func Run(config cfg.Config) {
 	state := initState()
 	snakeDirectionHorizontal := 1
 	snakeDirectionVertical := 0
-	score := 0
+	//score := 0
 	keyboardErr := tb.Init()
 	if keyboardErr != nil {
 		panic(keyboardErr)
@@ -23,12 +24,9 @@ func Run(config cfg.Config) {
 	defer tb.Close()
 	go readKey(&snakeDirectionHorizontal, &snakeDirectionVertical, &state)
 	for {
-		if state.status == gameExitStatus {
-			break
-		}
 		switch state.status {
 		case menuActiveStatus, gameOverStatus:
-			renderMenu(state.menuStrings[0], state.menuStrings[1], state.menuStrings[2], score)
+			renderMenu(state.menuStrings[0], state.menuStrings[1], state.menuStrings[2], state.score)
 		case gameActiveStatus, gamePauseStatus:
 			rows := config.DeskRows
 			columns := config.DeskColumns
@@ -45,7 +43,7 @@ func Run(config cfg.Config) {
 			}
 
 			appleCoord := make([]int, 2)
-			score = 0
+			state.ResetScore()
 			snakeDirectionHorizontal = 1
 			snakeDirectionVertical = 0
 			appleScoreAdd := 100
@@ -69,7 +67,7 @@ func Run(config cfg.Config) {
 			playground[appleCoord[1]][appleCoord[0]] = state.apple
 			for { // for {} == while True. Постоянный цикл
 				if state.status == gamePauseStatus {
-					render(&rows, &columns, &score, &frameSpeed, &playground)
+					render(&rows, &columns, &state.score, &frameSpeed, &playground)
 					if state.status == gameOverStatus {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
@@ -117,7 +115,7 @@ func Run(config cfg.Config) {
 					// Захавал яблоко. Делаем новое
 					if snakeCord[0][0] == appleCoord[0] && snakeCord[0][1] == appleCoord[1] {
 						state.snake.length = state.snake.length + 1
-						score = score + appleScoreAdd
+						state.AddScore(appleScoreAdd)
 						snakeCordAdd := []int{snakeCord[state.snake.length-1][1] - snakeDirectionVertical, snakeCord[state.snake.length-1][0] - snakeDirectionHorizontal}
 						snakeCord = append(snakeCord, snakeCordAdd)
 						appleCoord[0] = rand.Intn(columns-1) + 0
@@ -143,10 +141,13 @@ func Run(config cfg.Config) {
 						break
 					} else {
 						fmt.Println(appleCoord[1], appleCoord[0])
-						render(&rows, &columns, &score, &frameSpeed, &playground)
+						render(&rows, &columns, &state.score, &frameSpeed, &playground)
 					}
 				}
 			}
+		case gameExitStatus:
+			clearRender()
+			os.Exit(0)
 		}
 	}
 }
@@ -158,6 +159,7 @@ func initState() State {
 		status:       menuActiveStatus, // TODO: temp
 		apple:        themes.SymbolRed,
 		space:        themes.SymbolGreen,
+		score:        0,
 		snake: Snake{
 			length:     2,
 			symbol:     themes.SymbolPurple,
