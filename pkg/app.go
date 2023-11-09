@@ -57,7 +57,7 @@ func Run(config cfg.Config) {
 			appleCoord[0] = rand.Intn(columns-1) + 0
 			appleCoord[1] = rand.Intn(rows-1) + 0
 			// Если координаты головы змеи совпадают с яблоком, то перемещаем яблоко
-			for appleCoord[0] == snakeCord[0][0] && appleCoord[1] == snakeCord[0][1] {
+			for playground[appleCoord[1]][appleCoord[0]] != state.space {
 				appleCoord[0] = rand.Intn(columns-1) + 0
 				appleCoord[1] = rand.Intn(rows-1) + 0
 			}
@@ -84,10 +84,10 @@ func Run(config cfg.Config) {
 						snakeCord[state.snake.length-i][0], snakeCord[state.snake.length-i][1] = snakeCord[state.snake.length-i-1][0], snakeCord[state.snake.length-i-1][1]
 						playground[snakeCord[state.snake.length-i][1]][snakeCord[state.snake.length-i][0]] = state.snake.symbol
 					}
-					// Проверочка, чтобы в частных случаях иконка яблока не пропадала
-					if playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] != state.apple {
-						playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] = state.space
-					}
+					// Чёта тут я проверял... сейчас вроде нормально
+					// if playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] != state.apple {
+					playground[snakeCord[state.snake.length][1]][snakeCord[state.snake.length][0]] = state.space
+					// }
 					// Смотрим, выходит ли змейка за рамки
 					if snakeCord[0][1]+snakeDirectionVertical == -1 || snakeCord[0][1]+snakeDirectionVertical == rows || snakeCord[0][0]+snakeDirectionHorizontal == -1 || snakeCord[0][0]+snakeDirectionHorizontal == columns {
 						switch snakeDirectionVertical {
@@ -121,10 +121,8 @@ func Run(config cfg.Config) {
 						appleCoord[0] = rand.Intn(columns-1) + 0
 						appleCoord[1] = rand.Intn(rows-1) + 0
 						for i := 0; i < len(snakeCord); i++ {
-							for appleCoord[1] == snakeCord[i][1] && appleCoord[0] == snakeCord[i][0] {
+							for playground[appleCoord[1]][appleCoord[0]] != state.space {
 								// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
-								// TODO: Исправить баг, спавнящий яблоко на змейке
-								fmt.Println("Замена!")
 								appleCoord[0] = rand.Intn(columns-1) + 0
 								appleCoord[1] = rand.Intn(rows-1) + 0
 							}
@@ -163,7 +161,7 @@ func initState() State {
 		snake: Snake{
 			length:     2,
 			symbol:     themes.SymbolPurple,
-			headSymbol: themes.SymbolPurple,
+			headSymbol: themes.SymbolWhiteCircle,
 		},
 	}
 }
