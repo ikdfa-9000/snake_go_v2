@@ -1,9 +1,10 @@
 package pkg
 
 import (
-	"example.com/snake_go/pkg/themes"
 	"fmt"
 	"time"
+
+	"example.com/snake_go/pkg/themes"
 )
 
 // TODO: перенести в themes.colors

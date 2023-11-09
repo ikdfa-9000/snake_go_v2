@@ -160,8 +160,8 @@ func initState() State {
 		space:        themes.SymbolGreen,
 		snake: Snake{
 			length:     2,
-			symbol:     symbolPurple,
-			headSymbol: symbolWhiteCircle,
+			symbol:     themes.SymbolPurple,
+			headSymbol: themes.SymbolPurple,
 		},
 	}
 }
