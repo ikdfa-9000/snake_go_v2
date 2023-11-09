@@ -28,6 +28,8 @@ type State struct {
 	apple themes.Symbol
 	space themes.Symbol
 	snake Snake
+
+	score int
 }
 
 func (s *State) gameActive() {
@@ -58,6 +60,14 @@ func (s *State) menuInitialize() {
 	case menuIdExit:
 		s.status = gameExitStatus
 	}
+}
+
+func (s *State) ResetScore() {
+	s.score = 0
+}
+
+func (s *State) AddScore(add int) {
+	s.score += add
 }
 
 // TODO
