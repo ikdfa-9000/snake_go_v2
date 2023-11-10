@@ -3,7 +3,7 @@ package themes
 type Symbol string
 
 const (
-	SymbolRed         Symbol = "🔴 "
+	SymbolRed         Symbol = "🔴"
 	SymbolGreen              = "🟢"
 	SymbolYellow             = "🟡"
 	SymbolWhite              = "⚪"
@@ -12,5 +12,5 @@ const (
 	SymbolOrange             = "🟠"
 	SymbolPurple             = "🟣"
 	SymbolRedCircle          = "⭕"
-	SymbolWhiteCircle        = "🔘 "
+	SymbolWhiteCircle        = "🔘"
 )

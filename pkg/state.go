@@ -19,9 +19,18 @@ const (
 	menuIdExit               = 2
 )
 
+const (
+	noDirection         int = 0
+	directionHorizLeft      = -1
+	directionHorizRight     = 1
+	directionVertUp         = -1
+	directionVertDown       = 1
+)
+
 type State struct {
 	status       StateStatus
 	menuStatusId MenuStatus
+	canChangeDir bool
 	// TODO
 	menuStrings []string
 
