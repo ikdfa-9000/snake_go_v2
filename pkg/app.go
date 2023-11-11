@@ -79,13 +79,10 @@ func Run(config cfg.Config) {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
 						}
-<<<<<<< HEAD
 						fmt.Println(themes.ColorRed, "Игра окончена")
 						fmt.Print(themes.ColorReset)
-=======
-						fmt.Println(colorRed, "Выход из игры!")
-						fmt.Print(colorReset)
->>>>>>> 83e04eaffe498fd84a5f2d5b289c9916d5867b53
+						fmt.Println(themes.ColorReset, "Выход из игры!")
+						fmt.Print(themes.ColorReset)
 						break
 					}
 				} else {
