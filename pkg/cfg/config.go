@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 var defaultConfig = Config{
 	DeskRows:       8,
 	DeskColumns:    8,
-	DeskFrameSpeed: 400,
+	DeskFrameSpeed: 200,
 }
 
 type Config struct {
