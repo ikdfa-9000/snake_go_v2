@@ -1,15 +1,16 @@
 package pkg
 
 import (
-	"example.com/snake_go/pkg/themes"
 	"fmt"
 	"time"
+
+	"example.com/snake_go/pkg/themes"
 )
 
 // TODO: перенести в themes.colors
 const ()
 
-func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]themes.Symbol) {
+func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *float64, playgroundLink *[][]themes.Symbol, state *State) {
 	for k := 0; k < *deskLinkVert; k++ { // Вывод матрицы в терминал
 		for l := 0; l < *deskLinkHoriz; l++ {
 			fmt.Print((*playgroundLink)[k][l])
@@ -23,6 +24,7 @@ func render(deskLinkVert *int, deskLinkHoriz *int, scoreLink *int, speedLink *fl
 	for k := 0; k < *deskLinkVert+3; k++ {
 		fmt.Printf("\033[1A\033[K")
 	}
+	state.canChangeDir = true
 }
 
 func renderMenu(textPlay string, textOptions string, textExit string, score int) {
