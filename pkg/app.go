@@ -169,9 +169,6 @@ func initState() State {
 
 func readKey(horizAddress *int, vertAddress *int, state *State) {
 	for {
-		if state.status == gameExitStatus {
-			break
-		}
 		event := tb.PollEvent()
 
 		switch state.status {
@@ -204,7 +201,6 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 				}
 				state.menuStrings[state.menuStatusId] = strings.Replace(state.menuStrings[state.menuStatusId], " ", ">", -1)
 			case event.Key == tb.KeyEnter:
-				// Цикл for для clearRender() почему-то помечает дальнейший код как недостижимый... хз
 				clearRender()
 				clearRender()
 				clearRender()
@@ -245,6 +241,8 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 					*vertAddress = -1
 				}
 			}
+		case gameExitStatus:
+			os.Exit(0)
 		}
 	}
 }
