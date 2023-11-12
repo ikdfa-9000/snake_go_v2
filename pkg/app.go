@@ -125,6 +125,7 @@ func Run(config cfg.Config) {
 						state.AddScore(appleScoreAdd)
 						appleCoord[0] = rand.Intn(columns-1) + 0
 						appleCoord[1] = rand.Intn(rows-1) + 0
+						playground[snakeCord[state.snake.length-1][1]][snakeCord[state.snake.length-1][0]] = state.snake.symbol
 						for i := 0; i < len(snakeCord); i++ {
 							for playground[appleCoord[1]][appleCoord[0]] != state.space {
 								// Если новые координаты яблока совпадают с телом змеи, то яблоко нужно пересоздать
@@ -133,7 +134,6 @@ func Run(config cfg.Config) {
 							}
 						}
 						playground[appleCoord[1]][appleCoord[0]] = state.apple
-						playground[snakeCord[state.snake.length-1][1]][snakeCord[state.snake.length-1][0]] = state.snake.symbol
 					}
 					if state.status == gameOverStatus {
 						for k := 0; k < rows+1; k++ {
@@ -144,7 +144,6 @@ func Run(config cfg.Config) {
 						state.status = menuActiveStatus
 						break
 					} else {
-						fmt.Println(appleCoord[1], appleCoord[0])
 						render(&rows, &columns, &state.score, &frameSpeed, &playground, &state)
 					}
 				}
