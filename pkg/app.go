@@ -79,8 +79,10 @@ func Run(config cfg.Config) {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
 						}
-						fmt.Println(colorRed, "Выход из игры!")
-						fmt.Print(colorReset)
+						fmt.Println(themes.ColorRed, "Игра окончена")
+						fmt.Print(themes.ColorReset)
+						fmt.Println(themes.ColorReset, "Выход из игры!")
+						fmt.Print(themes.ColorReset)
 						break
 					}
 				} else {
@@ -139,8 +141,8 @@ func Run(config cfg.Config) {
 						for k := 0; k < rows+1; k++ {
 							clearRender()
 						}
-						fmt.Println(colorRed, "Игра окончена")
-						fmt.Print(colorReset)
+						fmt.Println(themes.ColorRed, "Игра окончена")
+						fmt.Print(themes.ColorReset)
 						state.status = menuActiveStatus
 						break
 					} else {
@@ -174,9 +176,6 @@ func initState() State {
 
 func readKey(horizAddress *int, vertAddress *int, state *State) {
 	for {
-		if state.status == gameExitStatus {
-			break
-		}
 		event := tb.PollEvent()
 
 		switch state.status {
@@ -209,7 +208,6 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 				}
 				state.menuStrings[state.menuStatusId] = strings.Replace(state.menuStrings[state.menuStatusId], " ", ">", -1)
 			case event.Key == tb.KeyEnter:
-				// Цикл for для clearRender() почему-то помечает дальнейший код как недостижимый... хз
 				clearRender()
 				clearRender()
 				clearRender()
@@ -257,6 +255,8 @@ func readKey(horizAddress *int, vertAddress *int, state *State) {
 					state.canChangeDir = false
 				}
 			}
+		case gameExitStatus:
+			os.Exit(0)
 		}
 	}
 }

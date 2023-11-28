@@ -18,9 +18,9 @@ const (
 // defaultConfig - Config структура с параметарми
 // по умолчанию для конфиг файла.
 var defaultConfig = Config{
-	DeskRows:       8,
+	DeskRows:       7,
 	DeskColumns:    8,
-	DeskFrameSpeed: 200,
+	DeskFrameSpeed: 100,
 }
 
 type Config struct {
@@ -58,14 +58,19 @@ func InitJsonConfig() (Config, error) {
 		return config, err
 	}
 
-	input, err := os.ReadFile(configPath)
-	if err != nil || len(input) == 0 {
-		// Если не получилось прочитать, создаем дефолтный конфиг
-		input, err = createDefaultConfig(configPath)
-		if err != nil {
-			return config, err
-		}
+	input, err := createDefaultConfig(configPath)
+	if err != nil {
+		return config, err
 	}
+	// OPT: отлинчный функционал, конфиг файл создается только, если его еще нет
+	//input, err := os.ReadFile(configPath)
+	//if err != nil || len(input) == 0 {
+	//	Если не получилось прочитать, создаем дефолтный конфиг
+	//input, err = createDefaultConfig(configPath)
+	//if err != nil {
+	//	return config, err
+	//}
+	//}
 
 	if err := json.Unmarshal(input, &config); err != nil {
 		return config, fmt.Errorf("ошибка десериализвации конфига: %v", err.Error())
